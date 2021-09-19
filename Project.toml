@@ -1,0 +1,21 @@
+name = "lab5"
+uuid = "68cffa02-d29b-4487-bf28-86921a02f45d"
+authors = ["Eric Ford <ebf11@psu.edu>"]
+version = "0.1.0"
+
+[deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+FlameGraphs = "08572546-2f56-4bcf-ba4e-bab62c3a3f89"
+JETTest = "a79fb612-4a80-4749-a9bd-c2faab13da61"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+PDMats = "90014a1f-27ba-587c-ab20-58faa44d9150"
+PlutoTeachingTools = "661c6b06-c737-4d37-b85c-46df65de6f69"
+PlutoTest = "cb4044da-4d16-4ffa-a6a3-8cad7f73ebdc"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+Profile = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
+ProfileSVG = "132c30aa-f267-4189-9183-c8a63c7e05e6"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"

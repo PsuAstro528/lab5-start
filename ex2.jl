@@ -7,7 +7,7 @@ using InteractiveUtils
 # ╔═╡ 0cac30f1-9101-4ba3-accc-52621bc1d16f
 begin
 	using PlutoUI, PlutoTest, PlutoTeachingTools
-	
+
 	using BenchmarkTools
 	using JETTest
 	using UnPack
@@ -26,7 +26,7 @@ md"""
 
 # ╔═╡ 9e04db5d-0662-4a39-af3b-85e68f948ebc
 md"""
-In this exercise, we'll get a tour of Julia's profiling and code inspection capabilities.  Then, we'll compare many implementations of one simple function, `calc_χ²` that computes the χ² for a simulated dataset of stellar radial velocities when using a Keplerian orbital model.  We'll use these tool to recognize opportunities for improving it's efficiency.  
+In this exercise, we'll get a tour of Julia's profiling and code inspection capabilities.  Then, we'll compare many implementations of one simple function, `calc_χ²` that computes the χ² for a simulated dataset of stellar radial velocities when using a Keplerian orbital model.  We'll use these tool to recognize opportunities for improving it's efficiency.
 
 As before, the code is in `src/calc_rv.jl` (which includes `src/kepler_eqn.jl`), so we'll need to load that into Pluto.
 """
@@ -39,8 +39,8 @@ end;
 
 # ╔═╡ 4b21be10-87ef-4926-b946-ef0f3fc0dce2
 md"""
-## Generate simualted data
-First, we'll set the true model parameters and generate simulated observations
+## Generate simulated data
+First, we'll set the true model parameters and generate simulated observations.
 """
 
 # ╔═╡ 104828fd-61d1-48af-879c-719b95cc1074
@@ -69,11 +69,11 @@ md"## Naive implementation of `calc_χ²`"
 
 # ╔═╡ bcdf14f8-a414-4314-9524-4ce071d41e22
 md"""
-Here, we'll write a quick and dirty function of the model parameters that calculated and returns χ².
+Here, we'll write a quick and dirty function of the model parameters that calculates and returns χ².
 """
 
 # ╔═╡ e3186d2e-be3e-4beb-a7b6-fbd3e0b01e0c
-function calc_χ²_v0(P,K,e,ω,M0) 
+function calc_χ²_v0(P,K,e,ω,M0)
 	# WARNING: Using global variables: times, rvs_obs, σ_rvs
 	@assert length(times) == length(rvs_obs) == length(σ_rvs)
 	rvs_pred = calc_rv_keplerian.(times,P,K,e,ω,M0)
@@ -83,9 +83,9 @@ end
 
 # ╔═╡ 10d7fdda-0a11-4be8-a939-3628494a781e
 md"""
-Notice that it's using the data in `times`, `rvs_obs` and `σ_rvs`, even though they're not passed as function arguements.  Therefore, the function will look for those variables in the scope of wherever it's called from.  In this case, we'll call it from the notebook, and we've defined the variables in the code cell above.  
+Notice that it's using the data in `times`, `rvs_obs` and `σ_rvs`, even though they're not passed as function arguements.  Therefore, the function will look for those variables in the scope of wherever it's called from.  In this case, we'll call it from the notebook, and we've defined the variables in the code cell above.
 
-We can see how julia gradually compiles our code by using macros for *code inspection*.  `@code\_lowered` shows the result of the first step which does not make use of type information.  
+We can see how julia gradually compiles our code by using macros for *code inspection*.  `@code_lowered` shows the result of the first step which does not make use of type information.
 """
 
 # ╔═╡ 6ac7900b-cff2-4b5c-b3b5-bf55ba1f5951
@@ -96,30 +96,30 @@ md"## Finding Type Instability"
 
 # ╔═╡ 9bb610b1-9e89-45e7-85a1-9c8475f27a8a
 md"""
-The compiler's next step is to make use of the type information and other variables that can be inferred at compile time to generate code that makes use of specific types  being used wherever possible.  We can see this with `@code\_warntype`.  Since it calls the LLVM compiler, we need to put its output into a terminal.
+The compiler's next step is to make use of the type information and other variables that can be inferred at compile time to generate code that makes use of specific types  being used wherever possible.  We can see this with `@code_warntype`.  Since it calls the LLVM compiler, we need to put its output into a terminal.
 """
 
 # ╔═╡ 3f0edfc5-cf3d-4f06-a89f-18f18cebc736
-with_terminal() do 
-	calc_χ²_v0 
+with_terminal() do
+	calc_χ²_v0
 	@code_warntype calc_χ²_v0(P,K,ecc,ω,M0)
 end
 
 # ╔═╡ 84c568c0-2a26-4e9d-9129-6cc120e919f7
 md"""
-While there is a lot here, we can be on the lookout for variables labeled '::ANY', meaning the compiler can't infer what type they'll have.  As a result, future calculations that depend on these variables can not be optimized for the specific types.  In this case, `times`, `rvs\_obs`, and `σ_rvs` have type Any.  This causes `rvs_pred`, `Δrv` and `χ²` to also have type Any."""
+While there is a lot here, we can be on the lookout for variables labeled '::ANY', meaning the compiler can't infer what type they'll have.  As a result, future calculations that depend on these variables can not be optimized for the specific types.  In this case, `times`, `rvs_obs`, and `σ_rvs` have type Any.  This causes `rvs_pred`, `Δrv` and `χ²` to also have type Any."""
 
 # ╔═╡ e99f1365-4cce-4be2-b15a-ca68276e17c4
-protip(md"Although, there aren't examples here, we should also be on the lookout for variables labeled '::Union{...}', indiciating that the compiler was able to narrow down the possible types to a list, but couldn't identify one specific type.
+protip(md"Although, there aren't examples here, we should also be on the lookout for variables labeled '::Union{...}', indicating that the compiler was able to narrow down the possible types to a list, but couldn't identify one specific type.
 ")
 
 # ╔═╡ a26208c9-0dfc-4db6-940b-540c0ff09a6c
 md"""
-In an effort to make it easier to find lines of code with type instability, the [JETTest.jl](https://aviatesk.github.io/JETTest.jl/dev/) package provides a macro `@report_dispatch`.  
+In an effort to make it easier to find lines of code with type instability, the [JETTest.jl](https://aviatesk.github.io/JETTest.jl/dev/) package provides a macro `@report_dispatch`.
 """
 
 # ╔═╡ 4d5fc84b-0471-4d20-bfe5-a4d0af538a78
-with_terminal() do 
+with_terminal() do
 	calc_χ²_v0
 	@report_dispatch calc_χ²_v0(P,K,ecc,ω,M0)
 end
@@ -129,11 +129,11 @@ tip(md"Avoid using global variables, especially in performance-sensitive code!")
 
 # ╔═╡ 78096a1e-8780-4c15-a29d-1e771ba7dab5
 md"""
-Having identified the presence of type instabilty, we'll now demonstrate a few different ways to eliminate it. 
+Having identified the presence of type instabilty, we'll now demonstrate a few different ways to eliminate it.
 """
 
 # ╔═╡ c8c3b803-4595-429b-a7cb-6e805d95b289
-md"## Option 1: Explicits types for global variables"
+md"## Option 1: Explicit types for global variables"
 
 # ╔═╡ 5f5ccc4f-256d-4c7b-a789-85e3bfd3395a
 md"""
@@ -141,7 +141,7 @@ Often, the easiest way to solve type instability is to provide explicit types fo
 """
 
 # ╔═╡ 0e605739-1df3-45b4-9810-b3311e402bbc
-function calc_χ²_v1a(P,K,e,ω,M0) 
+function calc_χ²_v1a(P,K,e,ω,M0)
 	# Promise what type the global variables will be
 	t = times::Vector{Float64}
 	obs  = rvs_obs::Vector{Float64}
@@ -158,7 +158,7 @@ Let's check that this still gives the same results and if it results in any type
 """
 
 # ╔═╡ 63833cdb-b8d5-40b0-ad5f-1897c5324f63
-with_terminal() do 
+with_terminal() do
 	calc_χ²_v1a
 	println("Checking calc_χ²_v1a")
 	@report_dispatch calc_χ²_v1a(P,K,ecc,ω,M0)
@@ -189,7 +189,7 @@ end
 
 # ╔═╡ 2c1cff43-2ac1-4b42-9db5-c75cdcc2f7cd
 md"""
-While we solved the type instability problem quickly, there are some disadvantages.  First, the names and types of the variables containing the data are hard coded.  This makes `calc_χ²_v1a` suceptive to unexpected behavior if the global variables change.  For example if someone set `rvs_obs` as `Float32`'s, they'd get an error message.   not as generic as it could be.  In next sections we'll explore other programming patterns that solve the type stability issue, while also resulting in code that is more modular, more performant and easier to read, maintain and debug.
+While we solved the type instability problem quickly, there are some disadvantages.  First, the names and types of the variables containing the data are hard coded.  This makes `calc_χ²_v1a` susceptive to unexpected behavior if the global variables change.  For example if someone set `rvs_obs` as `Float32`'s, they'd get an error message.   Not as generic as it could be.  In next sections we'll explore other programming patterns that solve the type stability issue, while also resulting in code that is more modular, more performant and easier to read, maintain and debug.
 """
 
 # ╔═╡ e3eb842f-e470-4b3e-8da4-275427da841d
@@ -197,7 +197,7 @@ md"## Option 2: Pass all variables as parameters"
 
 # ╔═╡ fae5b36d-5dc8-4027-8f7d-e2eb9531242c
 md"""
-The reason for type instability in `calc_χ²_v1a` was that the types of variables could change between calls.  We can eliminate the use of global variabiles by passing all variables to be used by a funciton as arguements.  For example,
+The reason for type instability in `calc_χ²_v1a` was that the types of variables could change between calls.  We can eliminate the use of global variables by passing all variables to be used by a function as arguments.  For example,
 """
 
 # ╔═╡ 43a4cbba-b1dc-4cc8-8a5c-0494b9be9343
@@ -206,7 +206,7 @@ md"""
 """
 
 # ╔═╡ d7a39507-966a-4c63-a10e-1ceee329e65a
-function calc_χ²_v2a(t,rvs,σs,P,K,e,ω,M0) 
+function calc_χ²_v2a(t,rvs,σs,P,K,e,ω,M0)
 	@assert length(t) == length(rvs) == length(σs)
 	rvs_pred = calc_rv_keplerian.(t,P,K,e,ω,M0)
 	Δrv = rvs_pred .- rvs
@@ -219,7 +219,7 @@ Let's test for accuracy and type stability.
 """
 
 # ╔═╡ 1569124f-e948-4cae-8bc6-0076e3c214db
-with_terminal() do 
+with_terminal() do
 	calc_χ²_v2a
 	@report_dispatch calc_χ²_v2a(times,rvs_obs,σ_rvs,P,K,ecc,ω,M0)
 end
@@ -230,7 +230,7 @@ Let's check the results of `@code_warntype`
 """
 
 # ╔═╡ 23afcd0c-e2ad-4cf2-9a7e-cdfdf6cb927e
-with_terminal() do 
+with_terminal() do
 	calc_χ²_v2a
 	@code_warntype calc_χ²_v2a(times,rvs_obs,σ_rvs,P,K,ecc,ω,M0)
 end
@@ -247,7 +247,7 @@ md"""
 
 # ╔═╡ d7e2163d-d54c-46f9-a777-efdf56a1b7c4
 md"""
-This above pattern solved the type instability issue and also results in more modular and generic code.  However, functions that take eight parameters can be a little unwieldy.  More importantly, it's dangerous, since it requires that the person calling the funciton pass all the arguements in the correct order.  Therefore, we'll try a variation, where we reduce the number of function arguements by grouping them in a way that makes sense for our particular function.
+This above pattern solved the type instability issue and also results in more modular and generic code.  However, functions that take eight parameters can be a little unwieldy.  More importantly, it's dangerous, since it requires that the person calling the function pass all the arguments in the correct order.  Therefore, we'll try a variation, where we reduce the number of function arguments by grouping them in a way that makes sense for our particular function.
 """
 
 # ╔═╡ 5b79a4ed-c4ca-4f95-b5ea-df8f8bdb3652
@@ -255,8 +255,8 @@ function calc_χ²_v2b(data, param)
 	# WARNING: assumes data & param contains the right parameters in the right order!
 	@assert length(data) == 3
 	@assert length(param) == 5
-	(t,obs,σs) = data     
-	(P,K,e,ω,M0) = param  
+	(t,obs,σs) = data
+	(P,K,e,ω,M0) = param
 	@assert length(t) == length(obs) == length(σs)
 	rvs_pred = calc_rv_keplerian.(t,P,K,e,ω,M0)
 	Δrv = rvs_pred .- obs
@@ -270,7 +270,7 @@ data_as_tuple = (times,rvs_obs,σ_rvs)
 param_as_tuple = (P,K,ecc,ω,M0)
 
 # ╔═╡ cb34bcb1-938f-48ef-88a0-fc86b885cf0b
-with_terminal() do 
+with_terminal() do
 	calc_χ²_v2b
 	data = (times,rvs_obs,σ_rvs)
 	param = (P,K,ecc,ω,M0)
@@ -284,7 +284,7 @@ md"""
 
 # ╔═╡ 26ca4413-1a2f-4b29-81af-4aaab018bbf2
 md"""
-in `calc_χ²_v2c` we still require users to order the various model parameters correctly when putting them into `param`.  To further reduce the risk of an error due to ordering variables, we can make use of structure that assign names to their elements, such as a [`Dict`](https://docs.julialang.org/en/v1/base/collections/#Dictionaries) (short for dictionary, also known as a hash table) or a [NamedTuple](https://docs.julialang.org/en/v1/base/base/#Core.NamedTuple).  
+In `calc_χ²_v2c` we still require users to order the various model parameters correctly when putting them into `param`.  To further reduce the risk of an error due to ordering variables, we can make use of a structure that assigns names to their elements, such as a [`Dict`](https://docs.julialang.org/en/v1/base/collections/#Dictionaries) (short for dictionary, also known as a hash table) or a [NamedTuple](https://docs.julialang.org/en/v1/base/base/#Core.NamedTuple).
 """
 
 # ╔═╡ 1ccc18d1-0357-4b76-b275-a9443c585530
@@ -295,7 +295,7 @@ param_as_named_tuple = (;P,K,e=ecc,ω,M0)
 
 # ╔═╡ 82f53619-aa7b-4c61-9857-39b75b455b68
 md"""
-2a.  Crate a variable `data_as_named_tuple` that is a named tuple with keys `t`, `rvs`, and `σs` and contains our simulated data.  
+2a.  Create a variable `data_as_named_tuple` that is a `NamedTuple` with keys `t`, `rvs`, and `σs` and contains our simulated data.
 """
 
 # ╔═╡ 0e5641d9-8d14-49ce-9c6c-e5edf1f9b27d
@@ -316,7 +316,7 @@ end
 
 # ╔═╡ 6252ba9a-44c4-4485-bf38-b89a9b52442e
 md"""
-2b.  Crate a variable `param_as_dict` that is a named tuple with keys `P`, `K`, `e`, `ω` and `M0` and contains our model parameters.  
+2b.  Create a variable `param_as_dict` that is a `Dict` with keys `P`, `K`, `e`, `ω` and `M0` and contains our model parameters.
 """
 
 # ╔═╡ cc1a13ee-7753-4433-a058-ee66ba5eacfe
@@ -356,31 +356,31 @@ We'll test for accuracy and type stability.
 """
 
 # ╔═╡ c6914850-e34a-4a65-bc36-3c25f94bcd05
-with_terminal() do 
+with_terminal() do
 	calc_χ²_v2c
 	@report_dispatch calc_χ²_v2c(data_as_named_tuple,param_as_named_tuple)
 end
 
 # ╔═╡ 1328f5d0-3c6e-4a6c-83c5-f9b5862850b6
-with_terminal() do 
+with_terminal() do
 	calc_χ²_v2c
 	@report_dispatch calc_χ²_v2c(data_as_dict,param_as_dict)
 end
 
 # ╔═╡ bafb816a-7e43-48a5-8e1d-c47338cc546b
 md"""
-We can again inspect the typed code.  
+We can again inspect the typed code.
 """
 
 # ╔═╡ d6e456e3-2a7a-45ab-9733-72730cef939d
-with_terminal() do 
+with_terminal() do
 	calc_χ²_v2c
 	@code_warntype calc_χ²_v2c(data_as_named_tuple,param_as_dict)
 end
 
 # ╔═╡ 3564cc7e-05f2-41f1-8368-6098c5d60c5d
 md"""
-Yikes, it's grown much longer.  One might reasonably worry if our attempt to make safer code is costing us in terms of performance.  Let's check how much memory is being allocated by each version of our function, strating with our previous versions.
+Yikes, it's grown much longer.  One might reasonably worry if our attempt to make safer code is costing us in terms of performance.  Let's check how much memory is being allocated by each version of our function, starting with our previous versions.
 """
 
 # ╔═╡ 13623193-7cc4-40a7-ad46-622c489c2bd3
@@ -449,7 +449,7 @@ param_custom = RvParamKeplerian(P,K,ecc,ω,M0)
 
 # ╔═╡ f9d5666e-bcb6-4b67-9d01-9a05915bcfd3
 md"""
-One advantage of creating custom types is that we can implement multiple types that conform to a common interface.  This allows the programmer to try out different implementation strategies and easily swap them out.  To do that, we'll define an *[Abstract Type](https://docs.julialang.org/en/v1/manual/types/#man-abstract-types)*, and then provide at least one implementation of that abstract type.  
+One advantage of creating custom types is that we can implement multiple types that conform to a common interface.  This allows the programmer to try out different implementation strategies and easily swap them out.  To do that, we'll define an *[Abstract Type](https://docs.julialang.org/en/v1/manual/types/#man-abstract-types)*, and then provide at least one implementation of that abstract type.
 """
 
 # ╔═╡ a3384734-5b15-4faf-b257-78309acea8b7
@@ -472,7 +472,7 @@ Note that we can already use these custom types with our existing implementation
 
 # ╔═╡ a8bfd1e1-ca26-47d3-a43f-3ae8014e1c12
 md"""
-However, we can also write a version of `calc_χ²_v2d` that requires we pass custom structs.  
+However, we can also write a version of `calc_χ²_v2d` that requires we pass custom structs.
 """
 
 # ╔═╡ ff3514e5-fc61-4628-8f81-58a2243c3e92
@@ -494,8 +494,8 @@ calc_χ²_v2c(param_custom,rvdata_custom1)
 
 # ╔═╡ 4fdfbe03-d9ae-44ef-b6eb-d16a89c1f7d8
 md"""
-The first error message tells about the first time the compiler recognized that there was a problem.  However, it's not obvious whether the problem is inside `calc_χ²_v2c` or in how we called `calc_χ²_v2c`.  
-The second error message makes it clear that we did not call `calc_χ²_v2d` with valid arguements. 
+The first error message tells about the first time the compiler recognized that there was a problem.  However, it's not obvious whether the problem is inside `calc_χ²_v2c` or in how we called `calc_χ²_v2c`.
+The second error message makes it clear that we did not call `calc_χ²_v2d` with valid arguements.
 """
 
 # ╔═╡ 3d7940e8-fe07-443e-8e5d-57330152a563
@@ -542,7 +542,7 @@ end
 
 # ╔═╡ 7f9bca89-bf70-42c6-9f97-8c2d929a7e52
 struct RvData_abs_vec{T1<:Number, T2<:Number, T3<:Number} <: AbstractRvData
-	# WARNING:  Poor performance due to Abstract Collections 
+	# WARNING:  Poor performance due to Abstract Collections
 	t::AbstractVector{T1}
 	rvs::AbstractVector{T2}
 	σs::AbstractVector{T3}
@@ -607,7 +607,7 @@ md"## Profiling our implementation"
 
 # ╔═╡ 6e2a733c-7a9c-4e94-9a6b-eb04c4a90513
 md"""
-Thinking back to exercise 1, we found that sometimes the inside of a loop is repeatedly allocating and deallocating memory.  We got around this by pre-allocating memory and providing it as a workspace.  In `calc_periodogram`, we used a NamedTuple to contain spaces for multiple matrices and vectors.  We create a custom structure that includes pre-allocated workspaces.  
+Thinking back to exercise 1, we found that sometimes the inside of a loop is repeatedly allocating and deallocating memory.  We got around this by pre-allocating memory and providing it as a workspace.  In `calc_periodogram`, we used a NamedTuple to contain spaces for multiple matrices and vectors.  We create a custom structure that includes pre-allocated workspaces.
 """
 
 # ╔═╡ ffd21a68-03da-42cb-a1ae-171db4b58e98
@@ -634,24 +634,24 @@ md"### Custom concrete struct with pre-allocated workspace"
 
 # ╔═╡ 45a2d33d-3ef2-45b3-b1d7-713bc122cbeb
 begin
-	struct RvData_concrete_v3{T1<:Number, T2<:Number, T3<:Number, T4<:Number, 
-					V1<:AbstractVector{T1}, V2<:AbstractVector{T2}, 
-					V3<:AbstractVector{T3}, V4<:AbstractVector{T4}  
+	struct RvData_concrete_v3{T1<:Number, T2<:Number, T3<:Number, T4<:Number,
+					V1<:AbstractVector{T1}, V2<:AbstractVector{T2},
+					V3<:AbstractVector{T3}, V4<:AbstractVector{T4}
 						} <: AbstractRvData
 		t::V1
 		rvs::V2
 		σs::V3
 		predict::V4
 	end
-	
+
 	function RvData_concrete_v3(t::V1, rv::V2, σ::V3 )  where {
-							T1<:Number, T2<:Number, T3<:Number, 
-							V1<:AbstractVector{T1}, V2<:AbstractVector{T2}, 
+							T1<:Number, T2<:Number, T3<:Number,
+							V1<:AbstractVector{T1}, V2<:AbstractVector{T2},
 							V3<:AbstractVector{T3} }
 		@assert length(t) == length(rv) == size(σ,1)
-		WorkspaceT = promote_type(T1,T2,T3) 
+		WorkspaceT = promote_type(T1,T2,T3)
 		ws1 = Vector{WorkspaceT}(undef,length(t))
-		RvData_concrete_v3(t,rv,σ,ws1) 
+		RvData_concrete_v3(t,rv,σ,ws1)
 	end
 end
 
@@ -673,7 +673,7 @@ calc_χ²_v2d(param_custom,rvdata_custom1)
 
 # ╔═╡ 81028a2b-360e-4b92-b8a4-6730b4dc9400
 if !ismissing(response_2e)
-	with_terminal() do 
+	with_terminal() do
 		calc_χ²_v2d,rvdata_custom1,param_custom
 		@report_dispatch calc_χ²_v2d(rvdata_custom1,param_custom)
 	end
@@ -710,21 +710,21 @@ if !ismissing(response_2g)
 end
 
 # ╔═╡ 8373ffb0-15f2-40cf-bd2b-ce7f8be2107a
-with_terminal() do 
+with_terminal() do
 	calc_χ²_v2d, param_custom
 	data = RvData_abs_vec_anys(times,rvs_obs,σ_rvs)
 	@report_dispatch calc_χ²_v2d(data,param_custom)
 end
 
 # ╔═╡ fd8018c5-9bd7-4f9a-9ccd-afd2bc013b4a
-with_terminal() do 
+with_terminal() do
 	calc_χ²_v2d, param_custom
 	data = RvData_vec_anys(times,rvs_obs,σ_rvs)
 	@report_dispatch calc_χ²_v2d(data,param_custom)
 end
 
 # ╔═╡ 28a7f31b-4fda-41d2-acf0-045ee206f6dc
-with_terminal() do 
+with_terminal() do
 	calc_χ²_v2d, param_custom
 	data = RvData_abs_vec(times,rvs_obs,σ_rvs)
 	@report_dispatch calc_χ²_v2d(data,param_custom)
@@ -782,7 +782,7 @@ let
 end
 
 # ╔═╡ 5e3f4691-e528-4b2d-a1b4-e6462bf26a5b
-with_terminal() do 
+with_terminal() do
 	calc_χ²_v2d
 	data = RvData_concrete_v1(times,rvs_obs,σ_rvs)
 	param = RvParamKeplerian(P,K,ecc,ω,M0)
@@ -797,7 +797,7 @@ let
 end
 
 # ╔═╡ 46eee524-44c1-4589-b7a6-cad77dafa79c
-with_terminal() do 
+with_terminal() do
 	calc_χ²_v2d
 	data = RvData_concrete_v2(times,rvs_obs,σ_rvs)
 	param = RvParamKeplerian(P,K,ecc,ω,M0)
@@ -807,13 +807,13 @@ end
 # ╔═╡ af904775-c711-4810-aab3-89bdf36e68df
 begin
 	data = RvData_concrete_v2(times,rvs_obs,σ_rvs)
-	calc_χ²_v2d    
+	calc_χ²_v2d
     Profile.clear()
     Profile.init(delay=1/10^7)
-    for i in 1:10^4 
+    for i in 1:10^4
 		@profile calc_χ²_v2d( RvData_concrete_v2(times,rvs_obs,σ_rvs), param_custom)
 	end
-    prof_results = Profile.retrieve() 
+    prof_results = Profile.retrieve()
 end;
 
 # ╔═╡ f7f7b175-7541-444c-b1f6-3973a96d616d
@@ -840,9 +840,9 @@ let
 end
 
 # ╔═╡ da5c4f59-ea4b-4929-9d41-8b860a8abf18
-with_terminal() do 
+with_terminal() do
 	calc_χ²_v2d
-	data = RvData_concrete_v3(times,rvs_obs,σ_rvs)	
+	data = RvData_concrete_v3(times,rvs_obs,σ_rvs)
 	@report_dispatch calc_χ²_v2d(data,param_custom)
 end
 
@@ -852,7 +852,7 @@ md"**Concrete struct, without preallocating memory**"
 # ╔═╡ be787cd6-6b32-4395-92d6-334e277708bb
 let
 	calc_χ²_v2d, param_custom
-	data = RvData_concrete_v2(times,rvs_obs,σ_rvs)	
+	data = RvData_concrete_v2(times,rvs_obs,σ_rvs)
 	@benchmark calc_χ²_v2d($data,$param_custom)
 end
 
@@ -862,7 +862,7 @@ md"**Concrete struct, with preallocated memory**"
 # ╔═╡ d6099494-9e9c-43c3-bf8d-99b8badd81c9
 let
 	calc_χ²_v2d, param_custom
-	data = RvData_concrete_v3(times,rvs_obs,σ_rvs)	
+	data = RvData_concrete_v3(times,rvs_obs,σ_rvs)
 	@benchmark calc_χ²_v2d($data,$param_custom)
 end
 
@@ -904,7 +904,7 @@ end
 ProfileSVG.view(data=prof_results,fontsize=14,width=700,StackFrameCategory(color_by_module))
 
 # ╔═╡ 2c34baa9-2645-4e68-9134-8eb2605b7a26
-begin 
+begin
 	calc_χ²_v0
 	calc_χ²_v1a
 	calc_χ²_v2a
@@ -925,7 +925,7 @@ ready_to_test_calc_χ² && @test calc_χ²_v0(P,K,ecc,ω,M0) == calc_χ²_v2b( d
 
 # ╔═╡ 3bfd59f7-ab68-4d87-876c-8043714b7c8b
 begin
-	data_as_dict, param_as_dict, 
+	data_as_dict, param_as_dict,
 	ready_to_test_calc_χ² && @test calc_χ²_v0(P,K,ecc,ω,M0) == calc_χ²_v2c(data_as_dict,param_as_dict)
 end
 
@@ -957,18 +957,18 @@ ready_to_test_calc_χ² && (@isdefined rvs_obs) && @test calc_χ²_v0(P,K,ecc,ω
 ready_to_test_calc_χ² && (@isdefined rvs_obs) && @test calc_χ²_v0(P,K,ecc,ω,M0) == calc_χ²_v2d(RvData_abs_vec(times,rvs_obs,σ_rvs),param_custom)
 
 # ╔═╡ aac25f61-36d3-4d52-a3c5-353c451f065f
-ready_to_test_calc_χ² && (@isdefined rvs_obs) && 
+ready_to_test_calc_χ² && (@isdefined rvs_obs) &&
 @test calc_χ²_v0(P,K,ecc,ω,M0) == calc_χ²_v2d(RvData_concrete_v1(times,rvs_obs,σ_rvs),param_custom)
 
 # ╔═╡ 741c5677-5295-4499-9881-06830234a11c
-ready_to_test_calc_χ² && (@isdefined rvs_obs) && 
+ready_to_test_calc_χ² && (@isdefined rvs_obs) &&
 @test calc_χ²_v0(P,K,ecc,ω,M0) == calc_χ²_v2d(RvData_concrete_v2(times,rvs_obs,σ_rvs),param_custom)
 
 # ╔═╡ 32b9d72b-9cff-4857-a45b-1baa1949b046
 let
 	calc_χ²_v2d, RvData_concrete_v3 ,param_custom
 	data = RvData_concrete_v3(times,rvs_obs,σ_rvs)
-	ready_to_test_calc_χ² && (@isdefined rvs_obs) && 
+	ready_to_test_calc_χ² && (@isdefined rvs_obs) &&
 	@test calc_χ²_v0(P,K,ecc,ω,M0) == calc_χ²_v2d(data,param_custom)
 end
 

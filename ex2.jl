@@ -320,7 +320,7 @@ md"""
 """
 
 # ╔═╡ cc1a13ee-7753-4433-a058-ee66ba5eacfe
-param_as_dict = missing  # TODO:  replace with yoru code
+param_as_dict = missing  # TODO:  replace with your code
 
 # ╔═╡ 52dd0fba-6011-4179-b018-a6ea7de2f48a
 begin
@@ -432,7 +432,7 @@ md"## Option 3: Pass custom structs"
 
 # ╔═╡ 30edc01b-4fff-4a0a-8bfd-99d35c65fa68
 md"""
-The above pattern of using `Dict`'s or `NamedTuple`'s is pretty useful.  Sometimes it may be useful to create a custom type that will contain our variables.  This allows us to create convenience functions, such as non-trivial constructors that can check the inputs are valid.  It's a little more work, so I'll demonstrate below.
+The above pattern of using `Dict`'s or `NamedTuple`'s is pretty useful.  Sometimes it may be useful to create a custom type that will contain our variables.  This allows us to create convenience functions, such as non-trivial constructors that can check if the inputs are valid.  It's a little more work, so I'll demonstrate below.
 """
 
 # ╔═╡ e21c6438-127d-4d18-8f17-2a9fc4ab2ef6
@@ -495,11 +495,11 @@ calc_χ²_v2c(param_custom,rvdata_custom1)
 # ╔═╡ 4fdfbe03-d9ae-44ef-b6eb-d16a89c1f7d8
 md"""
 The first error message tells about the first time the compiler recognized that there was a problem.  However, it's not obvious whether the problem is inside `calc_χ²_v2c` or in how we called `calc_χ²_v2c`.
-The second error message makes it clear that we did not call `calc_χ²_v2d` with valid arguements.
+The second error message makes it clear that we did not call `calc_χ²_v2d` with valid arguments.
 """
 
 # ╔═╡ 3d7940e8-fe07-443e-8e5d-57330152a563
-md"2e.  Do you expect to happen if we check calc_χ²_v2c for type instability with `@report_dispatch` when passing `rvdata_custom1` and `param_custom`?  What do you expect for memory allocations?"
+md"2e.  What do you expect to happen if we check calc_χ²_v2d for type instability with `@report_dispatch` when passing `rvdata_custom1` and `param_custom`?  What do you expect for memory allocations?"
 
 # ╔═╡ 2f1dc64a-ede2-4963-9485-31feebfd0594
 response_2e = missing # Replace with md"Your response"
@@ -590,7 +590,7 @@ md"### More generic concrete custom struct"
 
 # ╔═╡ 37ca947a-594a-4340-b464-41b6a4670c86
 md"""
-We can make our custom struct even more generic, while maintaining type stabilitiy and avoiding exccess allocations as demonstrated below.  This can be useful for allowing us to pass a [view](https://docs.julialang.org/en/v1/base/arrays/#Views-(SubArrays-and-other-view-types)) into a pre-allocated arrays, potentially eliminating the need for copying data.
+We can make our custom struct even more generic, while maintaining type stability and avoiding excess allocations as demonstrated below.  This can be useful for allowing us to pass a [view](https://docs.julialang.org/en/v1/base/arrays/#Views-(SubArrays-and-other-view-types)) into a pre-allocated arrays, potentially eliminating the need for copying data.
 """
 
 # ╔═╡ 4adf7058-f572-4082-8f6b-2215f7feb83d
@@ -656,7 +656,7 @@ begin
 end
 
 # ╔═╡ abffb029-023c-4a28-ace8-5e5f469dce2b
-md"We can now overload the calc_χ²_v2d function so that it can take advantage of the pre-allocated workspace, if we pass data in the form of a `RvData_concrete_v3`.  Note that the previous function will still be called if we pass some other form of AbstractRvData."
+md"We can now overload the `calc_χ²_v2d` function so that it can take advantage of the pre-allocated workspace, if we pass data in the form of a `RvData_concrete_v3`.  Note that the previous function will still be called if we pass some other form of AbstractRvData."
 
 # ╔═╡ 0d12115d-b8fa-47f6-8e69-2050a82a5417
 function calc_χ²_v2d(data::RvData_concrete_v3, p::RvParamKeplerian{T}) where { T<:Number}
@@ -1076,9 +1076,9 @@ version = "0.12.8"
 
 [[Compat]]
 deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "SHA", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
-git-tree-sha1 = "4866e381721b30fac8dda4c8cb1d9db45c8d2994"
+git-tree-sha1 = "1a90210acd935f222ea19657f143004d2c2a1117"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "3.37.0"
+version = "3.38.0"
 
 [[CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1091,9 +1091,9 @@ uuid = "d38c429a-6771-53c6-b99e-75d170b6e991"
 version = "0.5.7"
 
 [[DataAPI]]
-git-tree-sha1 = "bec2532f8adb82005476c141ec23e921fc20971b"
+git-tree-sha1 = "cc70b17275652eb47bc9e5f81635981f13cea5c8"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
-version = "1.8.0"
+version = "1.9.0"
 
 [[DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
@@ -1157,9 +1157,9 @@ uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
 [[FillArrays]]
 deps = ["LinearAlgebra", "Random", "SparseArrays", "Statistics"]
-git-tree-sha1 = "caf289224e622f518c9dbfe832cdafa17d7c80a6"
+git-tree-sha1 = "7f6ad1a7f4621b4ab8e554133dade99ebc6e7221"
 uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
-version = "0.12.4"
+version = "0.12.5"
 
 [[FixedPointNumbers]]
 deps = ["Statistics"]
@@ -1439,9 +1439,9 @@ version = "2.1.2"
 
 [[MacroTools]]
 deps = ["Markdown", "Random"]
-git-tree-sha1 = "0fb723cd8c45858c22169b2e42269e53271a6df7"
+git-tree-sha1 = "5a5bc6bf062f0f95e62d0fe0a2d99699fed82dd9"
 uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
-version = "0.5.7"
+version = "0.5.8"
 
 [[Markdown]]
 deps = ["Base64"]
@@ -1519,9 +1519,9 @@ version = "8.44.0+0"
 
 [[Parsers]]
 deps = ["Dates"]
-git-tree-sha1 = "438d35d2d95ae2c5e8780b330592b6de8494e779"
+git-tree-sha1 = "9d8c00ef7a8d110787ff6f170579846f776133a9"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
-version = "2.0.3"
+version = "2.0.4"
 
 [[Pixman_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1547,9 +1547,9 @@ version = "1.0.14"
 
 [[Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "GeometryBasics", "JSON", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "PlotThemes", "PlotUtils", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs"]
-git-tree-sha1 = "4c2637482176b1c2fb99af4d83cb2ff0328fc33c"
+git-tree-sha1 = "457b13497a3ea4deb33d273a6a5ea15c25c0ebd9"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.22.1"
+version = "1.22.2"
 
 [[PlutoTeachingTools]]
 deps = ["LaTeXStrings", "Markdown", "PlutoUI", "Random"]
@@ -1559,15 +1559,15 @@ version = "0.1.4"
 
 [[PlutoTest]]
 deps = ["HypertextLiteral", "InteractiveUtils", "Markdown", "Test"]
-git-tree-sha1 = "3479836b31a31c29a7bac1f09d95f9c843ce1ade"
+git-tree-sha1 = "ada2eae88798ed6c93d9acb5e41e1671794bb8c8"
 uuid = "cb4044da-4d16-4ffa-a6a3-8cad7f73ebdc"
-version = "0.1.0"
+version = "0.1.1"
 
 [[PlutoUI]]
-deps = ["Base64", "Dates", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "Suppressor"]
-git-tree-sha1 = "44e225d5837e2a2345e69a1d1e01ac2443ff9fcb"
+deps = ["Base64", "Dates", "HypertextLiteral", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "Suppressor"]
+git-tree-sha1 = "26b4d16873562469a0a1e6ae41d90dec9e51286d"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.9"
+version = "0.7.10"
 
 [[Preferences]]
 deps = ["TOML"]
@@ -2011,7 +2011,7 @@ version = "0.9.1+5"
 # ╟─6252ba9a-44c4-4485-bf38-b89a9b52442e
 # ╠═cc1a13ee-7753-4433-a058-ee66ba5eacfe
 # ╟─52dd0fba-6011-4179-b018-a6ea7de2f48a
-# ╠═e28f45a4-63db-4bf4-b1d4-56b13faaa98f
+# ╟─e28f45a4-63db-4bf4-b1d4-56b13faaa98f
 # ╠═8801443b-3e2a-4fbe-bfe1-3258a2df6df2
 # ╟─150620fc-f1ed-4ad2-9cea-e2703114811d
 # ╠═3bfd59f7-ab68-4d87-876c-8043714b7c8b

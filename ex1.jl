@@ -37,8 +37,8 @@ md"""
 
 # ╔═╡ 9e04db5d-0662-4a39-af3b-85e68f948ebc
 md"""
-In this exercise, we'll profile some functions that we've used in [Lab 4](https://psuastro528.github.io/lab4-start/): `calc_ecc_anom`, `calc_rv_keplerian`, and  `calc_periodogram`.  
-You may want to look at the source code and/or the help information for each of these functions to remind yourself of what they do.  In order to make the profiler outpus easier to read, the functions that we'll profile have been palced into separate files inside this repository's `src` directory.  
+In this exercise, we'll profile some functions that we've used in [Lab 4](https://psuastro528.github.io/lab4-start/): `calc_ecc_anom`, `calc_rv_keplerian`, and  `calc_periodogram`.
+You may want to look at the source code and/or the help information for each of these functions to remind yourself of what they do.  In order to make the profiler outpus easier to read, the functions that we'll profile have been placed into separate files inside this repository's `src` directory.
 """
 
 # ╔═╡ f80f430b-45d0-4b2a-8be6-e39aabccd6ae
@@ -61,16 +61,16 @@ Next, we'll demonstrate the syntax for using Julia's profiler.
 """
 
 # ╔═╡ 1e4df7eb-d8de-4bae-912e-c2360f530b76
-with_terminal() do    
+with_terminal() do
 	calc_ecc_anom    # Tell Pluto to make sure our function is avaliable
 	Profile.clear()  # Clear the data stored by the profiler
 	@profile calc_ecc_anom.(π/4,0.5)
-	Profile.print()  
+	Profile.print()
 end
 
 # ╔═╡ 3f55c815-65a2-4950-8b2f-bc6d19e606c6
 md"""
-The odds are that you got a warning message that there were no samples collected.  Julia uses a *statistical* profiler, meaning that it doesn't count every time a line is executed, but rather it checks what line of code is being executed every so often.  `calc_ecc_anom` returned so quickly that the profiler didn't get a chance to figure out where it was spending its time.  In this case, it's so fast that we can't make the dealy between samples fast enough, so we'll combine both of the suggestions from the warning message to get usable profiling data.
+The odds are that you got a warning message that there were no samples collected.  Julia uses a *statistical* profiler, meaning that it doesn't count every time a line is executed, but rather it checks what line of code is being executed every so often.  `calc_ecc_anom` returned so quickly that the profiler didn't get a chance to figure out where it was spending its time.  In this case, it's so fast that we can't make the delay between samples fast enough, so we'll combine both of the suggestions from the warning message to get usable profiling data.
 """
 
 # ╔═╡ f5c19252-5c37-4688-b1f8-e29afa006684
@@ -84,24 +84,24 @@ begin
 		# Actually run profiler
 		@profile calc_ecc_anom(mean_anom,ecc)
 	end
-	# Explicilty store porfiling results to avoid confusion later on
-	retrieve_prof_calc_ecc_anom = Profile.retrieve() 
+	# Explicilty store profiling results to avoid confusion later on
+	retrieve_prof_calc_ecc_anom = Profile.retrieve()
 end;
 
 # ╔═╡ cce0518b-68fc-43a7-866a-d02febcf9901
-with_terminal() do    
+with_terminal() do
 	retrieve_prof_calc_ecc_anom
 	Profile.print(retrieve_prof_calc_ecc_anom...)
 end
 
 # ╔═╡ fe3931f6-11cf-4853-8bc9-d621a3af29f9
 md"""
-Ok, now you should see lots of data.  Each line of output corresponds to one line of code.  On the right of each line is the file containing the relevant code, the line number and a  function.  The number immediately to the left of the text is the number of times that the profiles checked in and found that the computer was executing that line of code *including* any computations in functions that resulted from it.  
+Ok, now you should see lots of data.  Each line of output corresponds to one line of code.  On the right of each line is the file containing the relevant code, the line number and a  function.  The number immediately to the left of the text is the number of times that the profiles checked in and found that the computer was executing that line of code *including* any computations in functions that resulted from it.
 
-This is a *tree view*, meaning that the lines are organized by what function calls what function.  The first several lines are because we're running inside a Pluto notebook.  Pluto wraps our cells in several functions to make it's reactive environment work.  
-	
-Skip down to the line just below the line containing 'Profile.jl:28; macro expansion'.  That's where the work we're interested begins.  The number immediately to the left is the total number of profiler samples collected for our code (in this case `calc_ecc_anom`).  
-		
+This is a *tree view*, meaning that the lines are organized by what function calls what function.  The first several lines are because we're running inside a Pluto notebook.  Pluto wraps our cells in several functions to make it's reactive environment work.
+
+Skip down to the line just below the line containing 'Profile.jl:28; macro expansion'.  That's where the work we're interested begins.  The number immediately to the left is the total number of profiler samples collected for our code (in this case `calc_ecc_anom`).
+
 1a.  How many samples did you get for 'kepler\_eqn.jl:46; calc\_ecc\_anom'?
 """
 
@@ -114,8 +114,8 @@ display_msg_if_fail(check_type_isa(:response_1a,response_1a,Integer))
 # ╔═╡ 3005d8e2-f018-43eb-9759-8ee48fa9ea1a
 md"""
 1b.  Scroll down looking for other big numbers (e.g., at least a quarter of $response_1a).
-Ignore any lines that refer to 'Profile.jl' or 'task.jl'.  
-Which line numer of code in kepler_eqn is taking the most time?  
+Ignore any lines that refer to 'Profile.jl' or 'task.jl'.
+Which line numer of code in kepler_eqn is taking the most time?
 """
 
 # ╔═╡ 4fb20f7c-ba52-4381-b75d-1a726e62569c
@@ -140,15 +140,15 @@ We can display the profiling results in other formats. For example, instead of t
 """
 
 # ╔═╡ d1f872d2-0953-47d1-b4cc-e177496677b0
-with_terminal() do    
-	Profile.print(retrieve_prof_calc_ecc_anom..., format=:flat, sortedby=:count) 
+with_terminal() do
+	Profile.print(retrieve_prof_calc_ecc_anom..., format=:flat, sortedby=:count)
 end
 
 # ╔═╡ dc0dce98-3824-44ef-bd58-d14c0a93f8ac
 md"""
 In this format, the first column contains the number of samples, the third colum contains the filename, the fourth column is the line number and the fifth column is the function within that line.
-	
-1c.  Scroll to the bottom of the above output, then go back up to find the first time (you see 'calc\_ecc\_anom' (starting from the bottom).  Look at the several lines above it (i.e., the lines of code account for a significant fraction of the total cost).  What line of code in 'update\_ecc\_anom\_laguerre' is taking the most time?  
+
+1c.  Scroll to the bottom of the above output, then go back up to find the first time (you see 'calc\_ecc\_anom' (starting from the bottom).  Look at the several lines above it (i.e., the lines of code account for a significant fraction of the total cost).  What line of code in 'update\_ecc\_anom\_laguerre' is taking the most time?
 """
 
 # ╔═╡ ef76ab85-a2bd-4b5b-acc1-176eead528f5
@@ -178,7 +178,7 @@ display_msg_if_fail(check_type_isa(:response_1d,response_1d,Markdown.MD))
 
 # ╔═╡ 182dc7ba-bb2d-4b95-b393-79b0860dd8d0
 md"""
-This is an example of a funciton with very little room for improvement.  Most of the time is being spent on computing sines, cosines, square roots and basic arithmetic.  Notabley, we do *no* see significant time being devoted to memory allocations.  So it's unlikely that we'll be able to optimize this function further (unless we were to find a more efficient way to solve the problem by using a different algorithm). 
+This is an example of a funciton with very little room for improvement.  Most of the time is being spent on computing sines, cosines, square roots and basic arithmetic.  Notably, we do *not* see significant time being devoted to memory allocations.  So it's unlikely that we'll be able to optimize this function further (unless we were to find a more efficient way to solve the problem by using a different algorithm).
 
 Before we move on, we'll also try looking at a visual representation of the same data.
 """
@@ -267,7 +267,7 @@ Now, we'll generate a set of Keplerian orbital parameters and simulated data to 
 # ╔═╡ 104828fd-61d1-48af-879c-719b95cc1074
 begin
 	P = 100.0
-	K = 10.0 
+	K = 10.0
 	ecc = rand()
 	ω = 2π*rand()
 	M0 = 2π*rand()
@@ -300,8 +300,8 @@ if true
 	for i in 1:10
 		@profile calc_periodogram_orig(times,rvs_obs,σ_rvs,num_periods=num_periods)
 	end
-	# Explicilty store porfiling results to avoid confusion later on
-	retrieve_prof_periodogram_orig = Profile.retrieve() 
+	# Explicitly store profiling results to avoid confusion later on
+	retrieve_prof_periodogram_orig = Profile.retrieve()
 end;
 
 # ╔═╡ e54ae808-22f9-4ee5-9b75-d93aa56a8b3d
@@ -312,7 +312,7 @@ ProfileSVG.view(data=retrieve_prof_periodogram_orig,fontsize=svg_fontsize,width=
 
 # ╔═╡ 488e83b4-4f5e-400f-85e2-f3b0716d7404
 md"""
-As before, there's about a dozen levels of functions at the bottom of the graph before we get to our function of interest, 'calc\_periodogram'.  Double click on the cell with 'calc\_periodogram' and line 31.  Look at how the code is spending its time.  
+As before, there's about a dozen levels of functions at the bottom of the graph before we get to our function of interest, 'calc\_periodogram'.  Double click on the cell with 'calc\_periodogram' and line 31.  Look at how the code is spending its time.
 
 1f.  Look for some cells near the top that take a non-trivial fraction of the time and aren't doing math.  What is taking time and could be avoided (or at least significantly reduced)?
 """
@@ -331,7 +331,7 @@ md"### Updated perodogram code"
 
 # ╔═╡ 40d92503-c7ab-4bf7-af62-02b08a284c17
 md"""
-Based on analyzing the above profiling information, I decided to pre-allocate memory for the [design matrix](https://en.wikipedia.org/wiki/Design_matrix) used for the generalized linear least squares regression (in the case of a periodogram the design matrix contains the values of sin(2π×t/P) and cos(2π×t/P) at each observation time for the putative orbital period being considered).  After implementing that, saw there there was still significant time spend allocating memory.  Therefore, I preallocated a total of three matrices and four vectors.  I updated the periodogram code to use *in-place* functions like [`mul!`](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/#LinearAlgebra.mul!), [`ldiv!`](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/#LinearAlgebra.ldiv!) and [`lu!`](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/#LinearAlgebra.lu!) so that calculations were written into an existing array/matrix, rather than allocating new memory for the result.
+Based on analyzing the above profiling information, I decided to pre-allocate memory for the [design matrix](https://en.wikipedia.org/wiki/Design_matrix) used for the generalized linear least squares regression (in the case of a periodogram the design matrix contains the values of sin(2π×t/P) and cos(2π×t/P) at each observation time for the putative orbital period being considered).  After implementing that, I saw that there was still significant time spend allocating memory.  Therefore, I preallocated a total of three matrices and four vectors.  I updated the periodogram code to use *in-place* functions like [`mul!`](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/#LinearAlgebra.mul!), [`ldiv!`](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/#LinearAlgebra.ldiv!) and [`lu!`](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/#LinearAlgebra.lu!) so that calculations were written into an existing array/matrix, rather than allocating new memory for the result.
 """
 
 # ╔═╡ 337d9aaf-e2f5-49cc-bd68-178d12110390
@@ -366,7 +366,7 @@ end;
 # ╔═╡ 11bd6e51-6993-4b8e-945c-7e61ff970dd4
 if @isdefined mem_pgram_percent_str
 	md"""
-	The new version only allocates $mem_pgram_percent_str as much memory as the original version!  
+	The new version only allocates $mem_pgram_percent_str as much memory as the original version!
 	"""
 end
 
@@ -375,16 +375,16 @@ md"Now, let's profile the updated periodogram code."
 
 # ╔═╡ 2facd1bf-e9ac-46c1-9523-1244395a3e8b
 if true
-	calc_periodogram 
+	calc_periodogram
 	calc_periodogram(times,rvs_obs,σ_rvs,num_periods=num_periods)   # Make sure compiled before profiling
 	Profile.clear()
 	Profile.init(delay=1/10^5)
 	for i in 1:10
 		@profile calc_periodogram(times,rvs_obs,σ_rvs,num_periods=num_periods)
 	end
-	
-	# Explicilty store porfiling results to avoid confusion later on
-	retrieve_prof_periodogram = Profile.retrieve() 
+
+	# Explicitly store profiling results to avoid confusion later on
+	retrieve_prof_periodogram = Profile.retrieve()
 end;
 
 # ╔═╡ 63fbadee-2ad4-4f68-9ba1-5c9d0143eb1a
@@ -395,7 +395,7 @@ end
 
 # ╔═╡ 1d9033dd-e266-4192-930d-ef5be6780226
 md"""
-Double click on the cell with 'calc\_periodogram' and line 31.  Look at how the code is spending its time.  
+Double click on the cell with 'calc\_periodogram' and line 31.  Look at how the code is spending its time.
 
 1g.  Do you notice any memory allocations inside calc_periodogram?  How does the time spent allocating memory compare to the original periodogram code?
 """
@@ -419,7 +419,7 @@ md"**Original Periodogram code**"
 md"**Updated Periodogram code**"
 
 # ╔═╡ 2c0adb00-71b6-483c-be10-f31642690184
-(@isdefined calc_periodogram) && 
+(@isdefined calc_periodogram) &&
  @benchmark calc_periodogram($times,$rvs_obs,$σ_rvs,num_periods=$num_periods)
 
 # ╔═╡ 7557b534-c348-44bd-8de2-557a290e1b59
@@ -444,7 +444,7 @@ end
 
 # ╔═╡ 5d715c51-147f-4a98-93cd-0c5fc2c51430
 md"""
-Once we've written the profiling results to a file, we can read each line and select the lines that refer tos pecific functions that we're specifically interested in.  
+Once we've written the profiling results to a file, we can read each line and select the lines that refer to specific functions that we're specifically interested in.
 """
 
 # ╔═╡ 3c9822b6-2643-4b0d-be1c-4716d701fbfa
@@ -469,7 +469,7 @@ display_msg_if_fail(check_type_isa(:response_1i,response_1i,Markdown.MD))
 md"Once you have a working serial implementation of your class project code, you'll wan to run a profiler on it to determine what are the most time consuming parts of the code.  That will help you identify what portions have the potential to give you a significant speed up."
 
 # ╔═╡ 85ea82e9-35c6-41be-a575-ab823809eef7
-md"Here's a good palce to stop and move on to exercise 2.  If you have some extra time, then you could consider the following questions."
+md"Here's a good place to stop and move on to exercise 2.  If you have some extra time, then you could consider the following questions."
 
 # ╔═╡ 10403496-5a93-4890-b399-93d6086ff3ee
 md"## If you have time..."

@@ -95,9 +95,9 @@ end
 function fit_general_linear_least_squares( design_mat::ADM, covar_mat::APD, obs::AA;
 			workspace = prealloc_workspace(design_mat,covar_mat,obs)
 	 			) where { ADM<:AbstractMatrix, APD<:PDiagMat, AA<:AbstractArray }
-	workspace.invA_X .= covar_mat.inv_diag .* design_mat
+	workspace.invA_X .= design_mat ./ covar_mat.diag
 	mul!(workspace.Xt_invA_X,design_mat', workspace.invA_X)
-	workspace.invA_y .= covar_mat.inv_diag .* obs
+	workspace.invA_y .= obs ./ covar_mat.diag
 	mul!(workspace.X_invA_y,  design_mat', workspace.invA_y)
 	lufac = lu!( workspace.Xt_invA_X, check=false)
 	ldiv!(workspace.AB_hat, lufac, workspace.X_invA_y)

@@ -4,7 +4,7 @@ Before starting this lab, make sure you've successfully gotten setup to use git,
 The first lab contained detailed instructions for using the Jupyter Lab server to work with Pluto notebooks.  
 
 Remember, that you need follow the provided link to create your own private copy of this lab's repository on GitHub.com.   See the
-[help on the course website](https://psuastro528.github.io/tips/submitting/) for instructions on cloning, committing, pushing and reviewing your work.
+[help on the course website](https://psuastro528.github.io/Fall2023/tips/labs/) for instructions on cloning, committing, pushing and reviewing your work.
 
 ## Exercise 1:  Profiling
 #### Goals:

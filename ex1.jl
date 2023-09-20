@@ -143,7 +143,7 @@ md"""
 """
 
 # ╔═╡ 8894cd1c-5f94-4b07-94a0-757b2fdf75db
-response_1a = missing # Replace with an integer
+response_1a = ""# missing # Replace with an integer
 
 # ╔═╡ 640647b7-1388-41dd-9a9a-e440898be3ab
 display_msg_if_fail(check_type_isa(:response_1a,response_1a,Integer))
@@ -156,7 +156,7 @@ Which line numer of code in kepler_eqn is taking the most time?
 """
 
 # ╔═╡ 4fb20f7c-ba52-4381-b75d-1a726e62569c
-response_1b = missing # Replace with an integer
+response_1b = ""#missing # Replace with an integer
 
 # ╔═╡ 4a37d8c9-8766-4692-8c8d-4f14c67df4ee
 begin
@@ -233,7 +233,7 @@ Now, you can see where the time for `calc_ecc_anom` is really going visually.  H
 
 # ╔═╡ be9e0f8d-a424-4025-bb1e-baa876664633
 md"""
-Look in the tall part of the stack for the cell 'kepler\_eqn.jl:46; calc\_ecc\_anom' (just below the first lowest green cell).  Double click on that cell to zoom in on the time spent inside 'calc\_ecc\_anom'.  You can hover your mouse over other cells to see what line they refer to.
+Look in the tall part of the stack for the cell 'kepler\_eqn.jl:46; calc\_ecc\_anom' (just below the first lowest green cell).  Hover over that cell to zoom in on the time spent inside 'calc\_ecc\_anom'.  You can hover your mouse over other cells to see what line they refer to.
 """
 
 # ╔═╡ 713265a1-2431-4e20-8e3d-965c924be1d1
@@ -351,7 +351,7 @@ Before looking into any performance improvements, we should double check that we
  begin
 	result_orig = calc_periodogram_orig(times,rvs_obs,σ_rvs)
 	result_new  = calc_periodogram(times,rvs_obs,σ_rvs)
-	@test all(result_new.periodogram .== result_orig.periodogram) && all(result_new.predict .== result_orig.predict)
+	@test all(result_new.periodogram .≈ result_orig.periodogram) && all(result_new.predict .≈ result_orig.predict)
 end
 
 # ╔═╡ e16a4171-e82d-4c43-af26-1f183fd15b2f

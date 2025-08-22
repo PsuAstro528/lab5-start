@@ -1,0 +1,12 @@
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+deps/deps.jl
+deps/build.log
+Manifest.toml
+data
+*.prof
+.ipynb_checkpoints
+ex*backup*.jl
+
+pluto_state_cache
